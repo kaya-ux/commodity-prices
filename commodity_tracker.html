@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>भारतीय कमोडिटी भाव - Indian Commodity Prices</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        input, select {
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.4);
+        }
+
+        button {
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .commodity-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .commodity-btn {
+            padding: 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .commodity-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .commodity-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .city-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .city-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .city-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .city-name {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .price-row:last-child {
+            border-bottom: none;
+        }
+
+        .price-label {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .price-value {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .price-unit {
+            font-size: 0.8em;
+            color: #999;
+            margin-left: 5px;
+        }
+
+        .updated-time {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .comparison {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .commodity-selector {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .price-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            input, select {
+                width: 100%;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛒 भारतीय कमोडिटी भाव</h1>
+            <p class="subtitle">Indian Commodity Price Tracker - Real-time Market Prices</p>
+            <div class="controls">
+                <input type="text" id="searchInput" placeholder="Search commodity...">
+                <select id="regionFilter">
+                    <option value="">All Regions</option>
+                    <option value="North">North India</option>
+                    <option value="South">South India</option>
+                    <option value="East">East India</option>
+                    <option value="West">West India</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="commodity-selector" id="commoditySelector"></div>
+
+        <div id="mainContent">
+            <div class="loading">Loading data...</div>
+        </div>
+    </div>
+
+    <script>
+        const commodities = [
+            { id: 'tomato', name: 'Tomato', icon: '🍅', unit: '/kg' },
+            { id: 'onion', name: 'Onion', icon: '🧅', unit: '/kg' },
+            { id: 'potato', name: 'Potato', icon: '🥔', unit: '/kg' },
+            { id: 'oil', name: 'Cooking Oil', icon: '🫒', unit: '/liter' },
+            { id: 'sugar', name: 'Sugar', icon: '🍯', unit: '/kg' },
+            { id: 'salt', name: 'Salt', icon: '🧂', unit: '/kg' },
+            { id: 'rice', name: 'Rice', icon: '🍚', unit: '/kg' },
+            { id: 'wheat', name: 'Wheat', icon: '🌾', unit: '/kg' },
+        ];
+
+        const cities = [
+            { name: 'Delhi', region: 'North', lat: 28.7041, lng: 77.1025 },
+            { name: 'Mumbai', region: 'West', lat: 19.0760, lng: 72.8777 },
+            { name: 'Bangalore', region: 'South', lat: 12.9716, lng: 77.5946 },
+            { name: 'Hyderabad', region: 'South', lat: 17.3850, lng: 78.4867 },
+            { name: 'Chennai', region: 'South', lat: 13.0827, lng: 80.2707 },
+            { name: 'Kolkata', region: 'East', lat: 22.5726, lng: 88.3639 },
+            { name: 'Pune', region: 'West', lat: 18.5204, lng: 73.8567 },
+            { name: 'Ahmedabad', region: 'West', lat: 23.0225, lng: 72.5714 },
+        ];
+
+        // Mock price data - simulating APMC data
+        const priceData = {
+            tomato: {
+                Delhi: 35, Mumbai: 40, Bangalore: 32, Hyderabad: 38, 
+                Chennai: 42, Kolkata: 36, Pune: 37, Ahmedabad: 39
+            },
+            onion: {
+                Delhi: 28, Mumbai: 32, Bangalore: 26, Hyderabad: 29, 
+                Chennai: 31, Kolkata: 27, Pune: 30, Ahmedabad: 28
+            },
+            potato: {
+                Delhi: 18, Mumbai: 20, Bangalore: 16, Hyderabad: 17, 
+                Chennai: 21, Kolkata: 19, Pune: 18, Ahmedabad: 17
+            },
+            oil: {
+                Delhi: 185, Mumbai: 190, Bangalore: 182, Hyderabad: 186, 
+                Chennai: 192, Kolkata: 188, Pune: 187, Ahmedabad: 185
+            },
+            sugar: {
+                Delhi: 32, Mumbai: 34, Bangalore: 31, Hyderabad: 32, 
+                Chennai: 35, Kolkata: 33, Pune: 32, Ahmedabad: 31
+            },
+            salt: {
+                Delhi: 15, Mumbai: 16, Bangalore: 14, Hyderabad: 15, 
+                Chennai: 17, Kolkata: 15, Pune: 15, Ahmedabad: 14
+            },
+            rice: {
+                Delhi: 45, Mumbai: 48, Bangalore: 42, Hyderabad: 44, 
+                Chennai: 50, Kolkata: 46, Pune: 45, Ahmedabad: 43
+            },
+            wheat: {
+                Delhi: 28, Mumbai: 30, Bangalore: 26, Hyderabad: 27, 
+                Chennai: 31, Kolkata: 29, Pune: 28, Ahmedabad: 26
+            }
+        };
+
+        let selectedCommodity = 'tomato';
+        let filterRegion = '';
+
+        function initializePage() {
+            renderCommoditySelector();
+            renderPrices(selectedCommodity);
+        }
+
+        function renderCommoditySelector() {
+            const selector = document.getElementById('commoditySelector');
+            selector.innerHTML = commodities.map(c => `
+                <button class="commodity-btn ${c.id === selectedCommodity ? 'active' : ''}" 
+                        data-id="${c.id}"
+                        onclick="selectCommodity('${c.id}')">
+                    ${c.icon} ${c.name}
+                </button>
+            `).join('');
+        }
+
+        function selectCommodity(id) {
+            selectedCommodity = id;
+            renderCommoditySelector();
+            renderPrices(id);
+        }
+
+        function renderPrices(commodityId) {
+            const commodity = commodities.find(c => c.id === commodityId);
+            const prices = priceData[commodityId];
+            
+            let filteredCities = cities;
+            if (filterRegion) {
+                filteredCities = cities.filter(c => c.region === filterRegion);
+            }
+
+            const mainContent = document.getElementById('mainContent');
+            
+            const priceCards = filteredCities.map(city => {
+                const price = prices[city.name];
+                return `
+                    <div class="city-card">
+                        <div class="city-name">${city.name}</div>
+                        <div class="price-row">
+                            <span class="price-label">${commodity.name}</span>
+                            <span class="price-value">₹${price}<span class="price-unit">${commodity.unit}</span></span>
+                        </div>
+                        <div class="updated-time">Last updated: Today ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+                `;
+            }).join('');
+
+            const avgPrice = Object.values(prices).reduce((a, b) => a + b, 0) / Object.values(prices).length;
+            const maxPrice = Math.max(...Object.values(prices));
+            const minPrice = Math.min(...Object.values(prices));
+
+            mainContent.innerHTML = `
+                <div class="price-grid">
+                    ${priceCards}
+                </div>
+
+                <div class="comparison">
+                    <h2 style="color: #667eea; margin-bottom: 20px;">📊 Market Statistics</h2>
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-label">Average Price</div>
+                            <div class="stat-value">₹${avgPrice.toFixed(2)}</div>
+                            <div class="stat-label">${commodity.unit}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Highest Price</div>
+                            <div class="stat-value">₹${maxPrice}</div>
+                            <div class="stat-label">${commodity.unit}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Lowest Price</div>
+                            <div class="stat-value">₹${minPrice}</div>
+                            <div class="stat-label">${commodity.unit}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Price Range</div>
+                            <div class="stat-value">₹${(maxPrice - minPrice).toFixed(2)}</div>
+                            <div class="stat-label">${commodity.unit}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        document.getElementById('regionFilter').addEventListener('change', (e) => {
+            filterRegion = e.target.value;
+            renderPrices(selectedCommodity);
+        });
+
+        document.getElementById('searchInput').addEventListener('keyup', (e) => {
+            const search = e.target.value.toLowerCase();
+            const buttons = document.querySelectorAll('.commodity-btn');
+            buttons.forEach(btn => {
+                const text = btn.textContent.toLowerCase();
+                btn.style.display = text.includes(search) ? 'block' : 'none';
+            });
+        });
+
+        // Initialize on page load
+        setTimeout(() => initializePage(), 500);
+    </script>
+</body>
+</html>
